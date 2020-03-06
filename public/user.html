@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>用户管理-公共平台应用</title>
+    </head>
+    <body>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body,
+            textarea,
+            button {
+                font-family: PingFang SC, Hiragino Sans GB, Arial, Microsoft YaHei, Verdana, Roboto, Noto, Helvetica Neue, sans-serif;
+            }
+            li {
+                list-style: none;
+            }
+            ul,
+            li,
+            dd {
+                margin: 0;
+                padding: 0;
+            }
+
+            .c-red {
+                color: red;
+            }
+
+            .user-box {
+                width: 980px;
+                margin: 50px auto;
+                padding: 20px 50px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+            }
+            .user-box ul {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+
+            .user-box ul li {
+                flex-basis: 48%;
+            }
+
+            .user-box h2 {
+                color: #333;
+                text-align: center;
+            }
+
+            .user-box dl,
+            .user-box .btn-add {
+                margin: 15px 0;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #fdfdfd;
+            }
+            .user-box dl dt {
+                position: relative;
+                margin-bottom: 10px;
+                font-weight: bold;
+            }
+
+            .user-box dt time {
+                position: absolute;
+                top: 50%;
+                right: 0;
+                transform: translateY(-50%);
+                color: #999;
+                font-size: 12px;
+            }
+
+            .user-box .operate {
+                display: none;
+                position: absolute;
+                top: 0;
+                right: 0;
+                min-width: 130px;
+                color: #666;
+                font-size: 14px;
+                text-align: right;
+                background-color: #fdfdfd;
+            }
+            .user-box dl:hover .operate {
+                display: block;
+            }
+
+            .user-box .operate a {
+                display: inline-block;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+
+            .user-box dl dd {
+                font-size: 14px;
+                color: #666;
+            }
+
+            .user-box .btn-add {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 32px;
+                line-height: 112px;
+                color: #bbb;
+                background-color: #fff;
+                cursor: pointer;
+            }
+
+            .add-box {
+                width: 100%;
+                padding: 20px 50px;
+            }
+
+            .add-box p {
+                padding: 10px;
+            }
+            .add-box label {
+                display: inline-block;
+                width: 120px;
+                padding-right: 10px;
+                text-align: right;
+            }
+
+            .add-box input,
+            .add-box textarea {
+                width: 230px;
+                padding: 5px;
+                border: 1px solid #ddd;
+                line-height: 1.8;
+                outline: none;
+                vertical-align: middle;
+            }
+
+            .del-box {
+                padding: 50px;
+            }
+
+            .dialog {
+                display: none;
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            .dialog-show {
+                display: block;
+            }
+
+            .dialog-container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                z-index: 1;
+                width: 500px;
+                border-radius: 4px;
+                background-color: #fff;
+                transform: translate(-50%, -50%);
+            }
+            .dialog-header,
+            .dialog-footer {
+                padding: 15px 20px;
+                border-bottom: 1px solid #eee;
+            }
+
+            .dialog-title {
+                margin: 0;
+            }
+            .dialog-close {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 57px;
+                height: 57px;
+                font-size: 24px;
+                color: #666;
+                cursor: pointer;
+            }
+            .dialog-footer {
+                border-bottom: 0;
+                border-top: 1px solid #eee;
+                text-align: right;
+            }
+            .dialog-btn {
+                width: 120px;
+                margin-left: 8px;
+                padding: 10px 20px;
+                border: 0;
+                border-radius: 4px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+            .dialog-btn-default {
+                color: #666;
+                background-color: #eee;
+            }
+
+            .dialog-btn-primary {
+                color: #fff;
+                background-color: #3781f9;
+            }
+
+            .dialog-btn-danger {
+                color: #fff;
+                background-color: #d9534f;
+            }
+        </style>
+        <div id="app">
+            <div class="user-box">
+                <h2>用户列表</h2>
+                <ul>
+                    <li v-for="item in list">
+                        <dl>
+                            <dt>
+                                {{ item.name }}
+                                <time>{{ item.createTime }}</time>
+                                <div class="operate"><a @click="edit(item)">编辑</a>&emsp;<a @click="del(item)">删除</a></div>
+                            </dt>
+                            <dd><strong>帐号: </strong>{{ item.name }}</dd>
+                            <dd><strong>密码: </strong>{{ item.pswd }}</dd>
+                            <dd><strong>电话: </strong>{{ item.phone }}</dd>
+                            <dd><strong>邮箱: </strong>{{ item.email }}</dd>
+                        </dl>
+                    </li>
+
+                    <li>
+                        <a class="btn-add" @click="add">╋</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dialog" :class="{'dialog-show': dialog.show}">
+                <div class="dialog-container">
+                    <div class="dialog-header">
+                        <h3 class="dialog-title">{{ dialog.title }}</h3>
+                        <span class="dialog-close" @click="dialog.show = false">&times;</span>
+                    </div>
+                    <div class="dialog-body">
+                        <div v-if="dialog.btn.save" class="add-box">
+                            <form action="">
+                                <p>
+                                    <label for="name"><span class="c-red">*</span>帐号</label> <input type="text" id="name" v-model="currentUser.name" :disabled="isDisabled" />
+                                </p>
+                                <p>
+                                    <label for="password"><span class="c-red">*</span>密码</label> <input type="text" id="password" v-model="currentUser.pswd" :disabled="isDisabled" />
+                                </p>
+                                <p><label for="phone">电话</label> <input type="text" id="phone" v-model="currentUser.phone" /></p>
+                                <p><label for="email">邮箱</label> <input type="email" id="email" v-model="currentUser.email" /></p>
+                            </form>
+                        </div>
+                        <div v-if="dialog.btn.delete" class="del-box">
+                            您确定删除此应用吗？
+                        </div>
+                    </div>
+                    <div class="dialog-footer">
+                        <button class="dialog-btn" :class="dialog.btn.save ? ' dialog-btn-primary': 'dialog-btn-danger'" type="button" @click="save">{{ dialog.btn.save ? '保存' : '删除' }}</button>
+                        <button class="dialog-btn dialog-btn-default" type="button" @click="cancel">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <script src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
+        <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
+        <script>
+            const vm = new Vue({
+                el: '#app',
+                data() {
+                    return {
+                        list: [],
+                        dialog: {
+                            title: '添加用户',
+                            saveType: 'add',
+                            show: false,
+                            btn: {
+                                save: true,
+                                cancel: true,
+                                delete: false
+                            }
+                        },
+                        currentUser: {
+                            name: '',
+                            pswd: '',
+                            phone: '',
+                            email: ''
+                        },
+                        isDisabled: false
+                    };
+                },
+                created() {
+                    this.update();
+                },
+                computed: {},
+                methods: {
+                    save() {
+                        const that = this;
+                        if (!(that.currentUser.name && that.currentUser.pswd)) {
+                            alert('账号或密码不能为空');
+                            return;
+                        }
+
+                        let url = '/api/user/register';
+                        let data = that.currentUser;
+
+                        if (this.dialog.saveType === 'edit') {
+                            url = '/api/user/edit';
+                        }
+
+                        if (this.dialog.saveType === 'del') {
+                            url = '/api/user/del';
+                            data = { name: that.currentUser.name };
+                        }
+
+                        axios.post(url, data).then(function(response) {
+                            if (response.data.code == 0) {
+                                that.update();
+                                that.reset();
+                            }
+                            alert(response.data.msg);
+                        });
+                    },
+                    cancel() {
+                        this.reset();
+                    },
+                    reset() {
+                        this.dialog = {
+                            title: '添加用户',
+                            saveType: 'add',
+                            show: false,
+                            btn: {
+                                save: true,
+                                cancel: true,
+                                delete: false
+                            }
+                        };
+                        this.currentUser = {
+                            name: '',
+                            pswd: '',
+                            phone: '',
+                            email: ''
+                        };
+                        this.isDisabled = false;
+                    },
+                    add() {
+                        this.dialog.show = true;
+                        this.dialog.saveType = 'add';
+                    },
+                    edit(obj) {
+                        this.dialog.title = '编辑用户';
+                        this.dialog.show = true;
+                        this.currentUser = Object.assign({}, obj);
+                        this.dialog.saveType = 'edit';
+                        this.isDisabled = true;
+                    },
+                    del(obj) {
+                        this.dialog.title = '删除用户';
+                        this.dialog.show = true;
+                        this.currentUser = Object.assign({}, obj);
+                        this.dialog.saveType = 'del';
+                        this.dialog.btn.delete = true;
+                        this.dialog.btn.save = false;
+                    },
+                    update() {
+                        const that = this;
+                        axios
+                            .get('/api/user/list')
+                            .then(function(response) {
+                                that.list = JSON.parse(response.data.data);
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                            .finally(function() {
+                                // always executed
+                            });
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

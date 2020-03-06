@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>公共平台应用</title>
+    </head>
+    <body>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body,
+            textarea,
+            button {
+                font-family: PingFang SC, Hiragino Sans GB, Arial, Microsoft YaHei, Verdana, Roboto, Noto, Helvetica Neue, sans-serif;
+            }
+
+            .menu {
+                width: 980px;
+                margin: 50px auto;
+                padding: 20px 50px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+            }
+
+            .menu h2 {
+                text-align: center;
+            }
+
+            .menu a {
+                display: block;
+                margin: 15px 0;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                color: #333;
+                text-decoration: none;
+                background-color: #fdfdfd;
+            }
+        </style>
+
+        <div class="menu">
+            <h2>菜单列表</h2>
+            <div class="menu-box">
+                <a href="./user.html">用户列表</a>
+                <a id="linkToken" href="./application.html">应用列表</a>
+                <a href="./token.html">Token列表</a>
+            </div>
+        </div>
+
+        <script>
+            let user = getParam('user');
+            let href = document.getElementById('linkToken').href + '?user=' + user;
+            document.getElementById('linkToken').href = href;
+
+            function getParam(key) {
+                var url = window.location.href;
+                var pattern = new RegExp('[?&]*' + key + '=([^&]+)');
+                try {
+                    var value = url.match(pattern)[1];
+                    return value;
+                } catch (err) {
+                    return '';
+                }
+            }
+        </script>
+    </body>
+</html>

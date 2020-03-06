@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Token-公共平台应用</title>
+    </head>
+    <body>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body,
+            textarea,
+            button {
+                font-family: PingFang SC, Hiragino Sans GB, Arial, Microsoft YaHei, Verdana, Roboto, Noto, Helvetica Neue, sans-serif;
+            }
+            li {
+                list-style: none;
+            }
+            ul,
+            li,
+            dd {
+                margin: 0;
+                padding: 0;
+            }
+
+            .c-red {
+                color: red;
+            }
+
+            .token-box {
+                width: 980px;
+                margin: 50px auto;
+                padding: 20px 50px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+            }
+            .token-box ul {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+
+            .token-box ul li {
+                flex-basis: 48%;
+            }
+
+            .token-box h2 {
+                color: #333;
+                text-align: center;
+            }
+
+            .token-box dl,
+            .token-box .btn-add {
+                margin: 15px 0;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #fdfdfd;
+            }
+            .token-box dl dt {
+                position: relative;
+                margin-bottom: 10px;
+                font-weight: bold;
+            }
+
+            .token-box dt time {
+                position: absolute;
+                top: 50%;
+                right: 0;
+                transform: translateY(-50%);
+                color: #999;
+                font-size: 12px;
+            }
+
+            .token-box .operate {
+                display: none;
+                position: absolute;
+                top: 0;
+                right: 0;
+                min-width: 130px;
+                color: #666;
+                font-size: 14px;
+                text-align: right;
+                background-color: #fdfdfd;
+            }
+            .token-box dl:hover .operate {
+                display: block;
+            }
+
+            .token-box .operate a {
+                display: inline-block;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+
+            .token-box dl dd {
+                font-size: 14px;
+                color: #666;
+                word-break: break-all;
+                overflow: auto;
+            }
+
+            .token-box .btn-add {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 32px;
+                line-height: 76px;
+                color: #bbb;
+                background-color: #fff;
+                cursor: pointer;
+            }
+
+            .del-box {
+                padding: 50px;
+            }
+
+            .dialog {
+                display: none;
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            .dialog-show {
+                display: block;
+            }
+
+            .dialog-container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                z-index: 1;
+                width: 500px;
+                border-radius: 4px;
+                background-color: #fff;
+                transform: translate(-50%, -50%);
+            }
+            .dialog-header,
+            .dialog-footer {
+                padding: 15px 20px;
+                border-bottom: 1px solid #eee;
+            }
+
+            .dialog-title {
+                margin: 0;
+            }
+            .dialog-close {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 57px;
+                height: 57px;
+                font-size: 24px;
+                color: #666;
+                cursor: pointer;
+            }
+            .dialog-footer {
+                border-bottom: 0;
+                border-top: 1px solid #eee;
+                text-align: right;
+            }
+            .dialog-btn {
+                width: 120px;
+                margin-left: 8px;
+                padding: 10px 20px;
+                border: 0;
+                border-radius: 4px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+            .dialog-btn-default {
+                color: #666;
+                background-color: #eee;
+            }
+
+            .dialog-btn-primary {
+                color: #fff;
+                background-color: #3781f9;
+            }
+
+            .dialog-btn-danger {
+                color: #fff;
+                background-color: #d9534f;
+            }
+        </style>
+        <div id="app">
+            <div class="token-box">
+                <h2>Token列表</h2>
+                <ul>
+                    <li v-for="item in list">
+                        <dl>
+                            <dt>
+                                {{ item.appName }}
+                                <time>{{ item.createTime }}</time>
+                                <div class="operate"><a @click="del(item)">删除</a></div>
+                            </dt>
+                            <dd><strong>所属应用: </strong>{{ item.appName }}</dd>
+                            <dd><strong>所属用户: </strong>{{ item.user }}</dd>
+                            <dd><strong>client_id: </strong>{{ item.client_id }}</dd>
+                            <dd><strong>token: </strong>{{ item.token }}</dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+            <div class="dialog" :class="{'dialog-show': dialog.show}">
+                <div class="dialog-container">
+                    <div class="dialog-header">
+                        <h3 class="dialog-title">{{ dialog.title }}</h3>
+                        <span class="dialog-close" @click="dialog.show = false">&times;</span>
+                    </div>
+                    <div class="dialog-body">
+                        <div class="del-box">
+                            您确定删除此Token吗？
+                        </div>
+                    </div>
+                    <div class="dialog-footer">
+                        <button class="dialog-btn dialog-btn-primary" type="button" @click="save">删除</button>
+                        <button class="dialog-btn dialog-btn-default" type="button" @click="cancel">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <script src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
+        <script>
+            const vm = new Vue({
+                el: '#app',
+                data() {
+                    return {
+                        list: [],
+                        dialog: {
+                            title: '删除Token',
+                            show: false,
+                            btn: {
+                                save: true,
+                                cancel: true
+                            }
+                        },
+                        currentToken: {
+                            client_id: ''
+                        }
+                    };
+                },
+                created() {
+                    this.update();
+                },
+                computed: {},
+                methods: {
+                    save() {
+                        const that = this;
+                        if (!that.currentToken.client_id) {
+                            alert('client_id不能为空');
+                            return;
+                        }
+
+                        const url = '/api/authorize/del';
+                        let data = {
+                            client_id: that.currentToken.client_id
+                        };
+
+                        axios.post(url, data).then(function(response) {
+                            if (response.data.code == 0) {
+                                that.update();
+                                that.reset();
+                            }
+                            alert(response.data.msg);
+                        });
+                    },
+                    cancel() {
+                        this.reset();
+                    },
+                    reset() {
+                        this.dialog = {
+                            title: '删除Token',
+                            show: false
+                        };
+                        this.currentToken = { client_id: '' };
+                    },
+                    del(obj) {
+                        this.dialog.title = '删除';
+                        this.dialog.show = true;
+                        this.currentToken = { client_id: obj.client_id };
+                    },
+                    async update() {
+                        const that = this;
+                        const tokenListResult = await this.getTokenList();
+                        const list = JSON.parse(tokenListResult);
+                        let flag = false;
+
+                        for (let i = 0; i < list.length; i++) {
+                            let client_id = list[i].client_id;
+                            let appList = JSON.parse(await this.getAppList());
+                            for (let j = 0; j < appList.length; j++) {
+                                if (appList[j].client_id === client_id) {
+                                    list[i].appName = appList[j].appName;
+                                    list[i].user = appList[j].user;
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            if (flag) {
+                                break;
+                            }
+                        }
+
+                        this.list = list;
+                    },
+                    getTokenList() {
+                        return new Promise((resolve, reject) => {
+                            axios.get('/api/authorize/list').then(
+                                function(response) {
+                                    resolve(response.data.data);
+                                },
+                                function(error) {
+                                    reject(error);
+                                }
+                            );
+                        });
+                    },
+                    getAppList() {
+                        return new Promise((resolve, reject) => {
+                            axios.get('/api/application/list').then(
+                                function(response) {
+                                    resolve(response.data.data);
+                                },
+                                function(error) {
+                                    reject(error);
+                                }
+                            );
+                        });
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

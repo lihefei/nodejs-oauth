@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>公共平台登录</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            .c-red {
+                color: red;
+            }
+            .login-box {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                width: 500px;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+                transform: translate3d(-50%, -50%, 0);
+            }
+
+            .login-box h2 {
+                color: #333;
+                text-align: center;
+            }
+
+            .login-box p {
+                padding: 10px;
+            }
+            .login-box label {
+                display: inline-block;
+                width: 120px;
+                padding-right: 10px;
+                text-align: right;
+            }
+
+            .login-box input {
+                width: 230px;
+                padding: 5px;
+                border: 1px solid #ddd;
+                line-height: 1.8;
+                outline: none;
+            }
+
+            .login-box button,
+            .login-box a {
+                display: inline-block;
+                width: 106px;
+                padding: 10px 0;
+                border: 0;
+                font-size: 14px;
+                text-align: center;
+                text-decoration: none;
+            }
+
+            .login-box button {
+                color: #fff;
+                background-color: rgb(55, 129, 249);
+                cursor: pointer;
+            }
+
+            .login-box a {
+                color: #666;
+                background-color: #eee;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <h2>公共平台登录</h2>
+            <form action="">
+                <p>
+                    <label for="name">帐号</label>
+                    <input type="text" id="name" />
+                </p>
+                <p>
+                    <label for="password">密码</label>
+                    <input type="text" id="password" />
+                </p>
+                <p>
+                    <label></label>
+                    <button type="button" id="submitBtn">登录</button>&emsp;<a href="./register.html">立即注册</a>
+                </p>
+            </form>
+        </div>
+
+        <script>
+            const xhr = new XMLHttpRequest();
+
+            document.getElementById('submitBtn').addEventListener('click', login, false);
+
+            function login() {
+                let data = {
+                    name: document.getElementById('name').value,
+                    pswd: document.getElementById('password').value
+                };
+                if (!(data.name && data.pswd)) {
+                    alert('账号或密码不能为空');
+                    return;
+                }
+
+                xhr.open('POST', '/api/user/login');
+                xhr.setRequestHeader('Content-type', 'application/json');
+                xhr.send(JSON.stringify(data));
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            console.log(typeof xhr.responseText); //成功结果
+                            const result = JSON.parse(xhr.responseText);
+                            if (result.code == 0) {
+                                alert('登录成功');
+                                console.log('登录成功');
+                                window.location.href = './index.html?user=' + data.name;
+                            } else {
+                                alert(result.msg);
+                            }
+                        } else {
+                            console.log(xhr.response); //失败结果
+                        }
+                    }
+                };
+            }
+        </script>
+    </body>
+</html>
